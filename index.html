@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Password Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Baloo+Tamma+2:wght@400..800&family=Charmonman:wght@400;700&family=Kaushan+Script&family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Oswald:wght@200&family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200;0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;0,8..60,800;0,8..60,900;1,8..60,200;1,8..60,300;1,8..60,400;1,8..60,500;1,8..60,600;1,8..60,700;1,8..60,800;1,8..60,900&display=swap');
+
+        body{
+            background-color: whitesmoke;
+        }
+
+        *{margin: 0;}
+
+        /*<uniquifier>: Use a unique and descriptive class name*/
+        /*<weight>: Use a value from 100 to 900*/
+
+        .raleway{
+            font-family: "Raleway", sans-serif;
+            font-optical-sizing: auto;
+        }
+
+        .raleway-std {
+                      font-family: "Raleway", sans-serif;
+                      font-optical-sizing: auto;
+                      font-weight: 400;
+                      font-style: normal;
+                  }
+
+        .montserrat{
+            font-family: "Montserrat", sans-serif;
+            font-optical-sizing: auto;
+        }
+
+        .page-header{
+
+        }
+
+        /* Default progress bar styling */
+        .progress-bar {
+            height: 20px;
+            width: 0%; /* Initial width, will be updated dynamically */
+        }
+
+        /* Red progress bar */
+        .bg-danger {
+            background-color: red;
+        }
+
+        /* Amber progress bar */
+        .bg-warning {
+            background-color: orange;
+        }
+
+        /* Green progress bar */
+        .bg-success {
+            background-color: #05b605;
+        }
+
+        /* Blue progress bar */
+        .bg-primary {
+            background-color: #05800f;
+        }
+
+        .element-box-shadow{
+            box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+            border-radius: 7px;
+        }
+        
+        .navlink{
+            
+        }
+        
+        .navlink:hover{
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+    </style>
+    <style>
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            border-radius: 5px;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div style="z-index: 9999; background-color: white;">
+    <div class="page-header" style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px; position: fixed; z-index: 9999; width: 100vw; background-color: white;">
+        <div style="margin-left: 20px; padding-top: 20px; padding-bottom: 20px;">
+            <h1 class="raleway" style="">PWManager</h1>
+            <h2 class="montserrat" style="font-weight: 300">Helping you stay secure!</h2>
+        </div>
+    </div>
+</div>
+<div style="height: 120px"></div>
+
+
+<div style="margin-top: 50px; width: 95vw; margin-left: 2.5vw; margin-bottom: 5vh">
+    <style>
+        #homepagegrid1{
+            display: grid;
+            grid-template-columns: 40vw 50vw;
+            grid-column-gap: 5vw;
+            /*height: 70vh;*/
+        }
+
+        #strong-pw-section-1{
+            background-color: white;
+            padding: 20px;
+            border-radius: 7px;
+            width: 40vw;
+            box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+            /*min-height: 100%*/
+            height: 100%;
+        }
+
+        #strong-pw-section-2{
+            width: 40vw;
+            text-align: center
+        }
+
+        #breach-canvas-wrapper-1{
+            width: 40vw;
+            margin-top: 20px
+        }
+
+        #password-strength-check-wrapper {
+            background-color: white;
+            padding: 20px;
+            border-radius: 7px;
+            width: calc(50vw - 2.5vw);
+            box-shadow: rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px;
+            /*min-height: 100%;*/
+            height: 100%;
+            text-align: center;
+        }
+
+        @media(max-width: 900px){
+            #homepagegrid1{
+                grid-template-columns: 100%;
+                grid-row-gap: 75px;
+                height: auto;
+            }
+
+            #homepagegrid1 > *{
+                width: auto;
+            }
+
+            #strong-pw-section-1{
+                width: auto;
+            }
+
+            #strong-pw-section-2{
+                width: auto;
+            }
+
+            #breach-canvas-wrapper-1{
+                width: auto;
+            }
+
+            #password-strength-check-wrapper{
+                min-height: 0px;
+            }
+        }
+    </style>
+    <div id="homepagegrid1">
+        <div>
+            <section id="strong-pw-section-1" style="">
+                <section id="strong-pw-section-2" style="">
+                    <h1 class="raleway" style="font-size: xx-large">A strong password is the best form of protection!</h1>
+                    <p class="montserrat" style="margin-top: 10px; font-size: small">The below figures show how many data breaches were reported year by year, due to compromised passwords. Secure your passwords today to ensure you don't become a statistic on our chart!</p>
+                </section>
+                <section id="breach-canvas-wrapper-1" style="">
+                    <canvas id="breach-chart" />
+                </section>
+            </section>
+        </div>
+        <div id="password-strength-check-wrapper" class="password-strength-checker" style="">
+            <section>
+                <h1 style="font-size: xx-large" class="raleway">Want to Debut a New Password?</h1>
+                <h2 style="font-size: medium; font-weight: 300; margin-top: 10px" class="montserrat">Why Not Carry Out a Strength Test First</h2>
+            </section>
+            <section style="margin-top: 75px;">
+                <form style="overflow: hidden">
+                    <input type="password" id="password-input" style="height: 45px; max-height: 45px; font-size: 22px; width: 90%; max-width: 90%; overflow: hidden; border: 0.5px solid grey; border-radius: 7px; text-align: center;" />
+                </form>
+                <p id="password-strength-message" style="font-size: 17px; text-align: start; color: grey; margin-top: 45px; font-weight: 700; visibility: hidden" class="montserrat">ajshdv</p>
+                <div id="password-strength-bar"></div>
+                <p style="font-size: 17px; text-align: start; color: grey; margin-top: 30px" class="raleway">We Recommend that Passwords meet the below criteria: </p>
+                <ul id="criteria-list" class="montserrat" style="color: grey; text-align: start; margin-top: 10px; font-size: 14px">
+                    <li>A Minimum of 12 Characters</li>
+                    <li>Contains a Combination of Letters and Numbers</li>
+                    <li>Doesn't Contain Easy to Guess information such as Number Sequences (E.G 1,2,3,4 ... 9,8,7,6)</li>
+                </ul>
+                <p style="font-size: 17px; text-align: start; color: grey; margin-top: 75px" class="raleway">Criteria We Can't Check For You: </p>
+                <ul class="montserrat" style="color: grey; text-align: start; margin-top: 10px; font-size: 14px">
+                    <li>Do Not Include Personal Info (Pets names, Favourite Colour, Children's Names)</li>
+                    <li>Do Not Write your password down (Securely Store it with us instead!)</li>
+                    <li>Never enter your password after clicking a link from an email, or any other unverified source asking for your password</li>
+                </ul>
+
+                <script>
+                    $(document).ready(function() {
+                        $('#password-input').on('blur', function() {
+                            let criteriaList = $('#criteria-list li');
+                            criteriaList.each(function() {
+                                $(this).css('color', 'grey');
+                            });
+
+                            $('#password-strength-message').css('visibility', 'hidden');
+                            $('#password-input').val('');
+                            $('#password-strength-bar').css('visibility', 'hidden')
+                        });
+                    });
+
+
+                    $(document).ready(function() {
+                        $('#password-input').on('input', function() {
+                            var password = $(this).val();
+                            var strength = checkPasswordStrength(password);
+                            var score = calculateStrengthScore(password);
+                            console.log(score)
+
+                            function calculateStrengthScore(password) {
+                                let lengthScore = 0;
+                                var score = 0;
+                                var criteriaMet = 0;
+
+                                // Check for criteria and increment score accordingly
+                                if (password.length >= 12) {
+                                    lengthScore += 1;
+                                    criteriaMet++;
+                                }
+                                if (/[a-zA-Z]/.test(password) && /\d/.test(password)) {
+                                    lengthScore += 1;
+                                    criteriaMet++;
+                                }
+                                if (!/\b\d{3,}\b/.test(password)) {
+                                    lengthScore += 1;
+                                    criteriaMet++;
+                                }
+
+                                // Calculate the percentage of criteria met
+                                var percentage = (criteriaMet / 3) * 100;
+                                let lengthScorePercentage = (lengthScore / 3) * 100;
+                                let scoredAverage = (lengthScorePercentage + percentage) / 2;
+                                let roundedAverage = Math.round(scoredAverage);
+                                console.log(`Percentage of Criteria met: ${percentage}`);
+                                console.log(`Rounded Scored Average: ${roundedAverage}`);
+                                // score = Math.round(score + percentage);
+                                return roundedAverage;
+                                // Ensure score does not exceed 100
+                                // score = Math.min(score, 100);
+
+                                return score;
+                            }
+
+                            function getProgressBarColor(score) {
+                                if (score < 30) {
+                                    return 'progress-bar bg-danger';
+                                } else if (score < 50) {
+                                    return 'progress-bar bg-warning';
+                                } else if (score < 68) {
+                                    return 'progress-bar bg-success';
+                                } else {
+                                    return 'progress-bar bg-primary';
+                                }
+                            }
+
+                            $('#password-strength-message').css('visibility', 'visible');
+                            $('#password-strength-bar').css('visibility', 'visible');
+                            $('#password-strength-bar').css('width', score + '%').removeClass().addClass(getProgressBarColor(score));
+
+                        });
+
+                        function checkPasswordStrength(password) {
+                            var criteriaList = $('#criteria-list li');
+                            var strength = 'very weak';
+
+                            if (password.length < 6) {
+                                $('#password-strength-message').css('color', 'red').text('Very Weak');
+                            } else if (password.length < 10) {
+                                strength = 'weak';
+                                $('#password-strength-message').css('color', 'orange').text('Weak');
+                            } else if (password.length < 15) {
+                                strength = 'strong';
+                                $('#password-strength-message').css('color', '#06af06').text('Strong');
+                            } else {
+                                strength = 'very strong';
+                                $('#password-strength-message').css('color', 'green').text('Very Strong');
+                            }
+
+                            if (password.length >= 12) {
+                                criteriaList.eq(0).css('color', 'green');
+                            } else {
+                                criteriaList.eq(0).css('color', 'red');
+                            }
+
+                            if (/[a-zA-Z]/.test(password) && /\d/.test(password)) {
+                                criteriaList.eq(1).css('color', 'green');
+                            } else {
+                                criteriaList.eq(1).css('color', 'red');
+                            }
+
+                            if (!/\b\d{3,}\b/.test(password)) {
+                                criteriaList.eq(2).css('color', 'green');
+                            } else {
+                                criteriaList.eq(2).css('color', 'red');
+                            }
+
+                            if (password.length >= 12 && /[a-zA-Z]/.test(password) && /\d/.test(password) && !/\b\d{3,}\b/.test(password)) {
+                                strength = 'very weak';
+                            } else if (password.length >= 12 && /[a-zA-Z]/.test(password) && /\d/.test(password)) {
+                                strength = 'weak';
+                            } else if (password.length >= 12 && /[a-zA-Z]/.test(password)) {
+                                strength = 'strong';
+                            } else if (password.length >= 12) {
+                                strength = 'very strong';
+                            }
+
+                            return strength;
+                        }
+                    });
+                </script>
+            </section>
+        </div>
+    </div>
+
+    <style>
+        #insightWrapperSection{
+            padding-top: 10px; padding-left: 20px; width: 40vw;
+        }
+        #gridInsightsSecScore{
+            width: 100%;
+            display: grid;
+            grid-template-columns: 40vw 50vw;
+            grid-column-gap: 5vw;
+            margin-top: 75px;
+        }
+
+        @media only screen and (max-width: 797px){
+            #gridInsightsSecScore{
+                grid-template-columns: 100%;
+                grid-row-gap: 30px;
+            }
+
+            #insightWrapperSection{
+                width: auto;
+            }
+        }
+    </style>
+
+    <div id="gridInsightsSecScore" style="">
+        <div style="background-color: white;" class="element-box-shadow">
+            <section id="insightWrapperSection" style="">
+                <h1 class="raleway">Insights</h1>
+                <h2 style="font-weight: 300; font-size: large" class="montserrat">Personal Insights, tailored to you.</h2>
+            </section>
+            <section style="margin-left: 20px; padding-bottom: 20px; margin-top: 5px; max-width: calc(100% - 40px)">
+                <style>
+                    table {
+                        border: 1px solid #ddd;
+                        width: 100%;
+                    }
+
+                    th, td {
+                        padding: 8px;
+                        text-align: left;
+                        /*font-family: "Poppins", sans-serif;*/
+                        font-family: "Montserrat", sans-serif;
+                    }
+
+                    tr:nth-child(even) {
+                        background-color: whitesmoke;
+                    }
+
+                    th {
+                        /*background-color: #333;*/
+                        background-color: white;
+                        font-weight: black;
+                        font-family: "Raleway", sans-serif;
+                        color: black;
+                        /*font-family: Oswald;*/
+                    }
+
+                    a {
+                        text-decoration: none;
+                        color: blue;
+                    }
+
+                    a:hover {
+                        text-decoration: underline;
+                    }
+                </style>
+                <p class="montserrat" style="font-size: medium; margin-top: 10px; margin-bottom: 10px;">
+                    Below are some of your accounts with frequently used passwords, the more you use passwords across sites,
+                    the less secure your accounts are.</p>
+                <section style="display: inline-flex; width: 100%">
+                    <span id="add-pw-button" style="color: blue; display: flex; align-items: center; margin-top: 10px; margin-bottom: 10px; cursor: pointer;" class="montserrat"><img style="color: blue" src="/assets/plus.svg" />  Add Password </span>
+                    <script>
+                        function saveData(url, data) {
+                            const jsonData = JSON.stringify(data);
+                            const blob = new Blob([jsonData], { type: 'application/json' });
+                            const urlBlob = URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+
+                            link.href = urlBlob;
+
+                            link.download = 'password_data.json';
+
+
+                            document.body.appendChild(link);
+
+                            link.click();
+
+                            document.body.removeChild(link);
+
+                            URL.revokeObjectURL(urlBlob);
+                        }
+
+                        const downloadPasswordData = () => {
+
+                            if (confirm('This will export all passwords in plaintext, do you want to proceed ?')) {
+                                fetchData('password_data.json', function (err, data) {
+                                    if (err) {
+                                        console.error('Error fetching data:', err);
+                                    } else {
+                                        saveData('password_data.json', data);
+                                    }
+                                });
+                            }
+                        }
+                    </script>
+                    <span id="export-data-button" style="color: blue; display: flex; align-items: center; margin-top: 10px; margin-bottom: 10px; cursor: pointer; margin-right: 50px; margin-left: auto;" class="montserrat"><img style="color: blue" src="/assets/download.svg" />  Export All Data </span>
+                </section>
+                <script>
+                   let addPW = document.getElementById('add-pw-button');
+                   addPW.addEventListener('click', () => {
+                       openModal();
+                   })
+
+                   let exportPW = document.getElementById('export-data-button');
+                   exportPW.addEventListener('click', () => {
+                       downloadPasswordData();
+                   })
+
+                   // Open the modal
+                   function openModal() {
+                       document.getElementById('myModal').style.display = "block";
+                   }
+
+                   // Close the modal
+                   function closeModal() {
+                       document.getElementById('myModal').style.display = "none";
+                   }
+
+                   // Function to add a new password
+                   function addPassword() {
+                       // Get input values
+                       const service = document.getElementById('service').value;
+                       const email = document.getElementById('email').value;
+                       const usage = document.getElementById('usage').value;
+                       const password = document.getElementById('password').value;
+
+                       // Create a new password object
+                       const newPassword = {
+                           service: service,
+                           email: email,
+                           usage: parseInt(usage),
+                           password: password
+                       };
+
+                       // Call a function to save the new password to JSON file
+                       savePassword(newPassword);
+
+                       // Close the modal after adding password
+                       closeModal();
+                   }
+
+                   // Function to save the new password to JSON file
+                   function savePassword(password) {
+                       // Fetch existing passwords from JSON file
+                       fetchData('password_data.json', function(err, data) {
+                           if (err) {
+                               console.error('Error fetching data:', err);
+                               return;
+                           }
+
+                           // Add the new password to the existing data
+                           data.push(password);
+
+                           // Save the updated data to JSON file
+                           saveData('password_data.json', data);
+                       });
+                   }
+
+                </script>
+                <div id="myModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeModal()">&times;</span>
+                        <div>
+                            <label for="service">Service:</label>
+                            <input type="text" id="service">
+                        </div>
+                        <div>
+                            <label for="email">Email:</label>
+                            <input type="text" id="email">
+                        </div>
+                        <div>
+                            <label for="usage">Usage:</label>
+                            <input type="number" id="usage">
+                        </div>
+                        <div>
+                            <label for="password">Password:</label>
+                            <input type="password" id="password">
+                        </div>
+                        <button onclick="addPassword()">Add Password</button>
+                    </div>
+                </div>
+                <table id="password-table" style="border-radius: 7px; box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px; width: 100%; max-width: calc((100% - 20px - 20px) - (8px * 5));" class="">
+                    <th style="">Your Passwords</th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <tbody id="password-table-body">
+<!--                        The table is populated via JS-->
+                    </tbody>
+                </table>
+            </section>
+        </div>
+        <div style="width: 100%; background-color: white; text-align: center;" class="element-box-shadow">
+            <section style="margin-top: 20px">
+                <h1 class="raleway" style="font-size: xx-large">Your Security Score Over Time</h1>
+                <p class="montserrat" style="margin-top: 10px; font-size: small">
+                    The below statistics show how well your have scored overall in our security audits over time.
+                    These statistics are based on various factors including password complexity and password reuse.
+                </p>
+            </section>
+            <section style="width: 90%; margin-left: 5%; padding-bottom: 5%">
+                <canvas id="password-strength-chart">
+            </section>
+        </div>
+    </div>
+
+    <div style="background-color: white; margin-top: 75px; border-radius: 7px" class="element-box-shadow">
+        <section style="padding-top: 10px; margin-left: 20px">
+            <h1 class="raleway">Generate a Secure Password</h1>
+            <p class="montserrat" style="margin-top: 10px">Randomly Generated Passwords can be up to 5x more secure than user selected passwords</p>
+        </section>
+        <div style="margin-top: 50px; margin-left: 20px;">
+            <h2 class="raleway">Select Word Count</h2>
+            <p style="margin-top: 10px;" class="montserrat">Use of real words in a generated password makes it easier to type. We recommend a minimum of 3 words, up to 6 words to ensure the most secure, difficult to crack password possible,.</p>
+            <section style="margin-top: 25px; padding-bottom: 25px">
+                <label class="montserrat" for="word-count">Number of Words:</label>
+                <input type="number" id="word-count" min="3" max="6" value="3">
+                <button onclick="generatePassphrase()">Generate Passphrase</button><span> or </span><button onclick="generateEasyTypePassword()">Generate Easily Typed Passphrase</button>
+                <p class="raleway" style="visibility: hidden; margin-top: 15px; font-weight: bold" id="newpw">New Password:</p>
+                <p style="box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset; padding: 20px; font-size: 17px; max-width: calc(90vw - 40px); margin-top: 10px; visibility: hidden;" id="generated-passphrase"></p>
+            </section>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Function to fetch JSON data
+    function fetchData(url, callback) {
+        const xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    const data = JSON.parse(xhr.responseText);
+                    callback(null, data);
+                } else {
+                    callback(new Error('Failed to fetch data'));
+                }
+            }
+        };
+        xhr.open('GET', url, true);
+        xhr.send();
+    }
+
+    // Function to render Chart.js line chart
+    function renderChart(data) {
+        const ctx = document.getElementById('breach-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(entry => entry.year),
+                datasets: [{
+                    label: 'Number of Data Breaches (By Compromised Password)',
+                    data: data.map(entry => entry.count),
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    // Fetch data and render chart
+    fetchData('data.json', function(err, data) {
+        if (err) {
+            console.error('Error fetching data:', err);
+        } else {
+            renderChart(data);
+        }
+    });
+
+    function renderPasswordStrengthChart(data) {
+        const ctx = document.getElementById('password-strength-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.map(entry => entry.date),
+                datasets: [{
+                    label: 'Average Password Strength',
+                    data: data.map(entry => entry.strength),
+                    borderColor: 'blue',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return value + '%'; // Add '%' to y-axis labels
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Fetch data and render chart
+    fetchData('password_strength_data.json', function(err, data) {
+        if (err) {
+            console.error('Error fetching data:', err);
+        } else {
+            renderPasswordStrengthChart(data);
+        }
+    });
+
+</script>
+<script >
+    // Function to render table rows with password data
+    function passwordToDots(password) {
+        return '*'.repeat(password.length);
+    }
+
+    function renderPasswordTable(data) {
+        const tbody = document.getElementById('password-table-body');
+        let iterationCount = 0;
+        data.forEach(entry => {
+            iterationCount ++;
+            if (iterationCount > 5){
+
+            }else {
+                const row = document.createElement('tr');
+                let pluralOrSingular;
+                if (entry.usage > 1){
+                    pluralOrSingular = 'sites';
+                }else{
+                    pluralOrSingular = 'site';
+                }
+                row.innerHTML = `
+                    <td>${entry.service}</td>
+                    <td>${entry.email}</td>
+                    <td><span style="color: ${getColor(entry.usage)}">Used on ${entry.usage} ${pluralOrSingular}</span></td>
+                    <td style="text-align: center;"><span class="password">${passwordToDots(entry.password)}</span></td>
+                    <td style="text-align: center"><img class="show-password" src="/assets/eye.svg"/></td>
+                `;
+
+                row.querySelector('.show-password').addEventListener('click', function () {
+                    const icon = this;
+                    const passwordSpan = this.closest('tr').querySelector('.password');
+                    if (icon.src.endsWith('eye.svg')) {
+                        icon.src = '/assets/eye-off.svg';
+                        passwordSpan.textContent = entry.password;
+                    } else {
+                        icon.src = '/assets/eye.svg';
+                        passwordSpan.textContent = passwordToDots(entry.password);
+
+                    }
+                });
+
+                tbody.appendChild(row);
+            }
+        });
+
+        let row = document.createElement('tr');
+        row.innerHTML = `
+            <tr style="height: 50px">
+                <td colspan="5"><span class="navlink" style="color: blue">View ${data.length - 5} More...</span></td>
+            </tr>
+        `;
+        tbody.appendChild(row);
+    }
+
+    // Function to get color based on usage count
+    function getColor(usage) {
+        if (usage >= 30) {
+            return 'red';
+        } else if (usage >= 10) {
+            return 'orange';
+        } else {
+            return 'green';
+        }
+    }
+
+    // Fetch data and render table
+    fetchData('password_data.json', function(err, data) {
+        if (err) {
+            console.error('Error fetching data:', err);
+        } else {
+            renderPasswordTable(data);
+        }
+    });
+</script>
+<script>
+    // Function to fetch the word list from the JSON file
+    async function fetchWordList() {
+        try {
+            const response = await fetch('wordlist.json');
+            const data = await response.json();
+            return Object.keys(data); // Extract keys (words) from the JSON object
+        } catch (error) {
+            console.error('Error fetching word list:', error);
+            return [];
+        }
+    }
+
+    function generateRandomThreeDigitNumber() {
+        let randomNumber = Math.floor(Math.random() * 1000); // Generate a random number between 0 and 999
+        // Pad the number with leading zeros if it's less than 100
+        return randomNumber.toString().padStart(3, '0');
+    }
+
+    let adjectives, nouns, verbs, newTech;
+
+    async function loadJSON(url) {
+        const response = await fetch(url);
+        return await response.json();
+    }
+
+    async function preload() {
+        adjectives = await loadJSON("adjectives.json");
+        nouns = await loadJSON("nouns.json");
+        verbs = await loadJSON("verbs.json");
+        newTech = await loadJSON("new-tech.json");
+    }
+
+    function generateEasyTypePassword() {
+        // Call preload to load JSON files
+        preload().then(() => {
+            // Call getNewSentence to display the initial sentence
+            let ezPW = replaceSpacesWithDashes(swapLetters(getNewSentence()));
+            let genPhrase = document.getElementById("generated-passphrase");
+            genPhrase.textContent = ezPW;
+            genPhrase.style.visibility = 'visible';
+            document.getElementById('newpw').style.visibility = 'visible';
+        });
+    }
+
+    function replaceSpacesWithDashes(password) {
+        return password.replace(/\s/g, '-');
+    }
+
+    function getNewSentence() {
+        let sentence = "the-" +
+            getRandomWord(adjectives.adj) + "-" +
+            getRandomWord(nouns.noun) + "-" +
+            getRandomWord(verbs.verb) + "-" +
+            getRandomWord(newTech.tech);
+        return sentence;
+    }
+
+    function getRandomWord(wordList) {
+        return wordList[Math.floor(Math.random() * wordList.length)];
+    }
+
+
+    function swapLetters(passphrase) {
+        // Define letter swap rules
+        const letterSwaps = {
+            'e': '3',
+            'a': '4',
+            'o': '0'
+            // Add more swap rules as needed
+        };
+
+        // Iterate through each character in the passphrase
+        let swappedPassphrase = "";
+        for (let char of passphrase) {
+            // Check if the character needs to be swapped
+            if (char.toLowerCase() in letterSwaps) {
+                if (Math.random() > 0.75) {
+                    swappedPassphrase += letterSwaps[char.toLowerCase()];
+                }else{
+                    swappedPassphrase += char;
+                }
+            } else {
+                if (/[a-z]/i.test(char)){
+                    if (Math.random() > 0.75){
+                        swappedPassphrase += char.toUpperCase();
+                    }else{
+                        swappedPassphrase += char;
+                    }
+                }else {
+                    swappedPassphrase += char;
+                }
+            }
+        }
+
+        return swappedPassphrase;
+    }
+
+    // Function to generate a passphrase
+    async function generatePassphrase() {
+        var wordCount = document.getElementById("word-count").value;
+        var passphrase = "";
+
+        var wordList = await fetchWordList();
+
+        if (wordList.length === 0) {
+            console.error('Word list is empty');
+            return;
+        }
+
+        for (var i = 0; i < wordCount; i++) {
+            var randomIndex = Math.floor(Math.random() * wordList.length);
+            let randProb = Math.random();
+            if (i > 0) {
+                if (randProb > 0.6) {
+                    passphrase += `${generateRandomThreeDigitNumber()}-`;
+                }
+            }
+            passphrase += wordList[randomIndex];
+
+            // Add a hyphen between words (except after the last word)
+            if (i < wordCount - 1) {
+                passphrase += "-";
+            }
+        }
+
+        passphrase = swapLetters(passphrase);
+        let genPhrase = document.getElementById("generated-passphrase");
+        genPhrase.textContent = passphrase;
+        genPhrase.style.visibility = 'visible';
+        document.getElementById('newpw').style.visibility = 'visible';
+
+    }
+</script>
+
+</body>
+</html>
